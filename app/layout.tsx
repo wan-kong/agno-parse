@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Agno Parse',
+  description: '一个强大的流式解析器工具',
   generator: 'v0.dev',
 }
 
