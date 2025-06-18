@@ -70,6 +70,8 @@ export default function AIAgentParser() {
       case "TeamRunResponseContent":
       case "RunResponseContent":
         return <MessageSquare className="w-4 h-4 text-purple-600" />
+      case "TeamReasoningStep":
+        return <Activity className="w-4 h-4 text-indigo-600" />
       default:
         return <AlertCircle className="w-4 h-4 text-amber-600" />
     }
@@ -88,6 +90,8 @@ export default function AIAgentParser() {
       case "TeamRunResponseContent":
       case "RunResponseContent":
         return "border-l-purple-400 bg-purple-50/50"
+      case "TeamReasoningStep":
+        return "border-l-indigo-400 bg-indigo-50/50"
       default:
         return "border-l-amber-400 bg-amber-50/50"
     }
@@ -531,6 +535,8 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
       case "TeamRunResponseContent":
       case "RunResponseContent":
         return <MessageSquare className="w-4 h-4 text-purple-600" />
+      case "TeamReasoningStep":
+        return <Activity className="w-4 h-4 text-indigo-600" />
       default:
         return <AlertCircle className="w-4 h-4 text-amber-600" />
     }
@@ -549,6 +555,8 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
       case "TeamRunResponseContent":
       case "RunResponseContent":
         return "border-l-purple-400 bg-purple-50/50"
+      case "TeamReasoningStep":
+        return "border-l-indigo-400 bg-indigo-50/50"
       default:
         return "border-l-amber-400 bg-amber-50/50"
     }
@@ -588,15 +596,76 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
           )}
         </div>
 
-        {/* Content */}
+        {/* Content - Enhanced for Different Content Types */}
         {otherData.content !== undefined && (
           <div>
             <div className="flex items-center gap-1 mb-1">
               <MessageSquare className="w-3 h-3 text-purple-600" />
               <span className="text-xs font-medium">Content</span>
+              {otherData.content_type && (
+                <Badge variant="outline" className="text-xs h-4">
+                  {otherData.content_type}
+                </Badge>
+              )}
             </div>
-            <div className="p-2 bg-purple-50 rounded border text-xs max-h-20 overflow-y-auto">
-              {otherData.content || <span className="text-slate-500 italic">Empty</span>}
+            <div className="p-2 bg-purple-50 rounded border text-xs">
+              <ScrollArea className="max-h-32 w-full">
+                {otherData.content_type === "ReasoningStep" ? (
+                  <div className="space-y-2">
+                    {typeof otherData.content === "object" && otherData.content !== null ? (
+                      <div className="space-y-2">
+                        {otherData.content.title && (
+                          <div>
+                            <div className="font-medium text-purple-700 mb-1">Title:</div>
+                            <div className="text-slate-700">{otherData.content.title}</div>
+                          </div>
+                        )}
+                        {otherData.content.action && (
+                          <div>
+                            <div className="font-medium text-blue-700 mb-1">Action:</div>
+                            <div className="text-slate-700">{otherData.content.action}</div>
+                          </div>
+                        )}
+                        {otherData.content.reasoning && (
+                          <div>
+                            <div className="font-medium text-green-700 mb-1">Reasoning:</div>
+                            <div className="text-slate-700 whitespace-pre-wrap">{otherData.content.reasoning}</div>
+                          </div>
+                        )}
+                        {otherData.content.next_action && (
+                          <div>
+                            <div className="font-medium text-amber-700 mb-1">Next Action:</div>
+                            <div className="text-slate-700">{otherData.content.next_action}</div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-slate-700 whitespace-pre-wrap">{String(otherData.content)}</div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-slate-700 whitespace-pre-wrap">
+                    {typeof otherData.content === "object"
+                      ? JSON.stringify(otherData.content, null, 2)
+                      : otherData.content || <span className="text-slate-500 italic">Empty</span>}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+          </div>
+        )}
+
+        {/* Reasoning Content - New Section for ReasoningStep */}
+        {otherData.reasoning_content && (
+          <div>
+            <div className="flex items-center gap-1 mb-1">
+              <MessageSquare className="w-3 h-3 text-indigo-600" />
+              <span className="text-xs font-medium">Reasoning Content</span>
+            </div>
+            <div className="p-2 bg-indigo-50 rounded border text-xs">
+              <ScrollArea className="max-h-32 w-full">
+                <div className="text-slate-700 whitespace-pre-wrap">{otherData.reasoning_content}</div>
+              </ScrollArea>
             </div>
           </div>
         )}
