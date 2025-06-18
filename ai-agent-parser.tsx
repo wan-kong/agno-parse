@@ -27,6 +27,7 @@ import {
   Filter,
   Bot,
   X,
+  Maximize2,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -90,10 +91,6 @@ export default function AIAgentParser() {
       default:
         return "border-l-amber-400 bg-amber-50/50"
     }
-  }
-
-  const formatTimestamp = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleString()
   }
 
   const parseJSONObjects = (text: string) => {
@@ -226,7 +223,11 @@ export default function AIAgentParser() {
     "tool_name": "forward_task_to_member",
     "tool_args": {
       "member_id": "web-agent",
-      "expected_output": "Current weather information for Beijing."
+      "expected_output": "Current weather information for Beijing.",
+      "detailed_instructions": "Please search for the current weather conditions in Beijing, China. Include temperature, humidity, wind speed, and any weather warnings. Make sure to get the most up-to-date information available and format it in a user-friendly way.",
+      "additional_context": "This request is part of a larger financial research task where weather conditions might impact certain market sectors.",
+      "priority": "high",
+      "timeout": 30000
     }
   }
 }{
@@ -239,7 +240,12 @@ export default function AIAgentParser() {
     "tool_call_id": "call_6Rfb5KrkSf2Wr1UBxHAsmOgD",
     "tool_name": "duckduckgo_search",
     "tool_args": {
-      "query": "current weather in Beijing"
+      "query": "current weather in Beijing China temperature humidity wind conditions",
+      "max_results": 10,
+      "search_type": "web",
+      "region": "cn-zh",
+      "safe_search": "moderate",
+      "time_range": "recent"
     }
   }
 }{
@@ -253,10 +259,15 @@ export default function AIAgentParser() {
     "tool_call_id": "call_6Rfb5KrkSf2Wr1UBxHAsmOgD",
     "tool_name": "duckduckgo_search",
     "tool_args": {
-      "query": "current weather in Beijing"
+      "query": "current weather in Beijing China temperature humidity wind conditions",
+      "max_results": 10,
+      "search_type": "web",
+      "region": "cn-zh",
+      "safe_search": "moderate",
+      "time_range": "recent"
     },
     "tool_call_error": false,
-    "result": "Weather search results for Beijing showing current temperature, conditions, and forecast data...",
+    "result": "Weather search results for Beijing showing current temperature of 24°C, partly cloudy conditions, humidity at 65%, wind speed 12 km/h from southwest direction, and forecast data for the next 3 days...",
     "metrics": {
       "time": 0.6865077069960535
     }
@@ -507,10 +518,6 @@ export default function AIAgentParser() {
 function EventCard({ event, index }: { event: AgentEvent; index: number }) {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const formatTimestamp = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleString()
-  }
-
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
       case "TeamRunStarted":
@@ -588,7 +595,7 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
               <MessageSquare className="w-3 h-3 text-purple-600" />
               <span className="text-xs font-medium">Content</span>
             </div>
-            <div className="p-2 bg-purple-50 rounded border text-xs">
+            <div className="p-2 bg-purple-50 rounded border text-xs max-h-20 overflow-y-auto">
               {otherData.content || <span className="text-slate-500 italic">Empty</span>}
             </div>
           </div>
@@ -611,38 +618,77 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
             <div className="space-y-2">
               {otherData.tool.tool_args && (
                 <div className="p-2 bg-blue-50 rounded border">
-                  <div className="text-xs font-medium mb-1">Args</div>
-                  <pre className="text-xs overflow-x-auto">{JSON.stringify(otherData.tool.tool_args, null, 2)}</pre>
+                  <div className="text-xs font-medium mb-1 flex items-center gap-1">
+                    Args
+                    <Maximize2 className="w-3 h-3 text-slate-400" />
+                  </div>
+                  <ScrollArea className="max-h-24 w-full">
+                    <pre className="text-xs whitespace-pre-wrap break-all">
+                      {JSON.stringify(otherData.tool.tool_args, null, 2)}
+                    </pre>
+                  </ScrollArea>
                 </div>
               )}
 
               {otherData.tool.result && (
                 <div className="p-2 bg-green-50 rounded border">
-                  <div className="text-xs font-medium mb-1">Result</div>
-                  <div className="text-xs max-h-20 overflow-y-auto">
-                    {typeof otherData.tool.result === "string"
-                      ? otherData.tool.result.length > 200
-                        ? `${otherData.tool.result.substring(0, 200)}...`
-                        : otherData.tool.result
-                      : JSON.stringify(otherData.tool.result, null, 2)}
+                  <div className="text-xs font-medium mb-1 flex items-center gap-1">
+                    Result
+                    <Maximize2 className="w-3 h-3 text-slate-400" />
                   </div>
+                  <ScrollArea className="max-h-24 w-full">
+                    <div className="text-xs whitespace-pre-wrap break-all">
+                      {typeof otherData.tool.result === "string"
+                        ? otherData.tool.result
+                        : JSON.stringify(otherData.tool.result, null, 2)}
+                    </div>
+                  </ScrollArea>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* Raw JSON */}
+        {/* Raw JSON - Enhanced Display with Fixed Scrolling */}
         <Collapsible>
-          <CollapsibleTrigger className="flex items-center gap-1 text-xs text-slate-600 hover:text-slate-800 p-1 rounded hover:bg-slate-100">
-            <ChevronRight className="w-3 h-3" />
-            <FileText className="w-3 h-3" />
-            Raw JSON
+          <CollapsibleTrigger className="flex items-center gap-1 text-xs text-slate-600 hover:text-slate-800 p-2 rounded hover:bg-slate-100 w-full justify-between border border-slate-200">
+            <div className="flex items-center gap-1">
+              <ChevronRight className="w-3 h-3" />
+              <FileText className="w-3 h-3" />
+              <span className="font-medium">Raw JSON Data</span>
+            </div>
+            <Badge variant="outline" className="text-xs h-4">
+              {JSON.stringify(event.data).length} chars
+            </Badge>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <pre className="mt-1 p-2 bg-slate-900 rounded text-xs text-green-400 overflow-x-auto max-h-32 overflow-y-auto">
-              {JSON.stringify(event.data, null, 2)}
-            </pre>
+            <div className="mt-2 border border-slate-200 rounded-lg overflow-hidden">
+              <div className="bg-slate-800 px-3 py-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-slate-300 text-xs font-mono ml-2">event-{event.id}.json</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-slate-300 hover:text-white hover:bg-slate-700"
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(event.data, null, 2))
+                  }}
+                >
+                  <Copy className="w-3 h-3" />
+                </Button>
+              </div>
+              <div className="h-80 bg-slate-900 overflow-hidden">
+                <ScrollArea className="h-full w-full">
+                  <pre className="p-4 text-sm text-green-400 font-mono leading-relaxed whitespace-pre-wrap break-all">
+                    {JSON.stringify(event.data, null, 2)}
+                  </pre>
+                </ScrollArea>
+              </div>
+            </div>
           </CollapsibleContent>
         </Collapsible>
       </div>
