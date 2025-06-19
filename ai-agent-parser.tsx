@@ -27,7 +27,16 @@ import {
   Filter,
   Bot,
   X,
-  Maximize2,
+  Brain,
+  Users,
+  Clock,
+  Target,
+  Lightbulb,
+  ArrowRight,
+  Pause,
+  Square,
+  XCircle,
+  Info,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -59,19 +68,61 @@ export default function AIAgentParser() {
 
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
-      case "TeamRunStarted":
+      // Run Events
       case "RunStarted":
+      case "TeamRunStarted":
         return <PlayCircle className="w-4 h-4 text-emerald-600" />
-      case "TeamToolCallStarted":
+      case "RunCompleted":
+      case "TeamRunCompleted":
+        return <CheckCircle className="w-4 h-4 text-green-600" />
+      case "RunFailed":
+      case "TeamRunFailed":
+        return <XCircle className="w-4 h-4 text-red-600" />
+      case "RunPaused":
+      case "TeamRunPaused":
+        return <Pause className="w-4 h-4 text-yellow-600" />
+      case "RunStopped":
+      case "TeamRunStopped":
+        return <Square className="w-4 h-4 text-gray-600" />
+
+      // Tool Events
       case "ToolCallStarted":
+      case "TeamToolCallStarted":
         return <Wrench className="w-4 h-4 text-blue-600" />
       case "ToolCallCompleted":
+      case "TeamToolCallCompleted":
         return <CheckCircle className="w-4 h-4 text-green-600" />
-      case "TeamRunResponseContent":
+      case "ToolCallFailed":
+      case "TeamToolCallFailed":
+        return <XCircle className="w-4 h-4 text-red-600" />
+
+      // Response Events
       case "RunResponseContent":
+      case "TeamRunResponseContent":
         return <MessageSquare className="w-4 h-4 text-purple-600" />
+      case "RunResponseDelta":
+      case "TeamRunResponseDelta":
+        return <ArrowRight className="w-4 h-4 text-purple-400" />
+
+      // Reasoning Events
+      case "ReasoningStep":
       case "TeamReasoningStep":
-        return <Activity className="w-4 h-4 text-indigo-600" />
+        return <Brain className="w-4 h-4 text-indigo-600" />
+
+      // Team Events
+      case "TeamMemberAdded":
+        return <Users className="w-4 h-4 text-cyan-600" />
+      case "TeamMemberRemoved":
+        return <Users className="w-4 h-4 text-orange-600" />
+
+      // Agent Events
+      case "AgentStarted":
+        return <Bot className="w-4 h-4 text-teal-600" />
+      case "AgentCompleted":
+        return <CheckCircle className="w-4 h-4 text-teal-600" />
+      case "AgentFailed":
+        return <XCircle className="w-4 h-4 text-red-600" />
+
       default:
         return <AlertCircle className="w-4 h-4 text-amber-600" />
     }
@@ -79,19 +130,60 @@ export default function AIAgentParser() {
 
   const getEventColor = (eventType: string) => {
     switch (eventType) {
-      case "TeamRunStarted":
+      // Run Events
       case "RunStarted":
+      case "TeamRunStarted":
         return "border-l-emerald-400 bg-emerald-50/50"
-      case "TeamToolCallStarted":
+      case "RunCompleted":
+      case "TeamRunCompleted":
+        return "border-l-green-400 bg-green-50/50"
+      case "RunFailed":
+      case "TeamRunFailed":
+        return "border-l-red-400 bg-red-50/50"
+      case "RunPaused":
+      case "TeamRunPaused":
+        return "border-l-yellow-400 bg-yellow-50/50"
+      case "RunStopped":
+      case "TeamRunStopped":
+        return "border-l-gray-400 bg-gray-50/50"
+
+      // Tool Events
       case "ToolCallStarted":
+      case "TeamToolCallStarted":
         return "border-l-blue-400 bg-blue-50/50"
       case "ToolCallCompleted":
+      case "TeamToolCallCompleted":
         return "border-l-green-400 bg-green-50/50"
-      case "TeamRunResponseContent":
+      case "ToolCallFailed":
+      case "TeamToolCallFailed":
+        return "border-l-red-400 bg-red-50/50"
+
+      // Response Events
       case "RunResponseContent":
+      case "TeamRunResponseContent":
         return "border-l-purple-400 bg-purple-50/50"
+      case "RunResponseDelta":
+      case "TeamRunResponseDelta":
+        return "border-l-purple-300 bg-purple-25/50"
+
+      // Reasoning Events
+      case "ReasoningStep":
       case "TeamReasoningStep":
         return "border-l-indigo-400 bg-indigo-50/50"
+
+      // Team Events
+      case "TeamMemberAdded":
+        return "border-l-cyan-400 bg-cyan-50/50"
+      case "TeamMemberRemoved":
+        return "border-l-orange-400 bg-orange-50/50"
+
+      // Agent Events
+      case "AgentStarted":
+      case "AgentCompleted":
+        return "border-l-teal-400 bg-teal-50/50"
+      case "AgentFailed":
+        return "border-l-red-400 bg-red-50/50"
+
       default:
         return "border-l-amber-400 bg-amber-50/50"
     }
@@ -209,13 +301,30 @@ export default function AIAgentParser() {
 
   const loadSampleData = () => {
     const sampleData = `{
+  "created_at": 1750234811,
+  "event": "TeamReasoningStep",
+  "team_id": "multi_search_team",
+  "team_name": "Multi-Search Team",
+  "run_id": "4644a23a-a82d-4e3a-b1bc-228d7245094f",
+  "session_id": "ab8ec4f7-db42-49f0-ba80-c557ace4e895",
+  "content": {
+    "title": "澄清任务和搜索关键词",
+    "action": "发起中英文搜索代理并行检索",
+    "reasoning": "用户询问李雷和韩梅梅分别考上了哪所大学，这涉及到中国英语教材中的经典人物，二者常被问及虚构发展、官方设定或近年媒体报道。可以从多语言角度分别搜索两人的"大学去向"，关键词应包括"李雷 韩梅梅 上了哪所大学"以及各自英文名及背景。准备调用中英搜索代理同时展开。",
+    "next_action": "continue"
+  },
+  "content_type": "ReasoningStep",
+  "reasoning_content": "## 澄清任务和搜索关键词\\n用户询问李雷和韩梅梅分别考上了哪所大学，这涉及到中国英语教材中的经典人物，二者常被问及虚构发展、官方设定或近年媒体报道。可以从多语言角度分别搜索两人的"大学去向"，关键词应包括"李雷 韩梅梅 上了哪所大学"以及各自英文名及背景。准备调用中英搜索代理同时展开。\\nAction: 发起中英文搜索代理并行检索\\n\\n"
+}{
   "created_at": 1750052905,
   "event": "TeamRunStarted",
   "team_id": "financial-researcher-team",
+  "team_name": "Financial Research Team",
   "run_id": "5580ae11-687f-48a7-b1ca-3232640781e9",
   "session_id": "4e79ac06-df04-4215-a3ed-60393d72e531",
   "model": "gpt-4o",
-  "model_provider": "OpenAI"
+  "model_provider": "OpenAI",
+  "instructions": "You are a financial research team that analyzes market data and provides insights."
 }{
   "created_at": 1750052906,
   "event": "TeamToolCallStarted",
@@ -228,14 +337,21 @@ export default function AIAgentParser() {
     "tool_args": {
       "member_id": "web-agent",
       "expected_output": "Current weather information for Beijing.",
-      "detailed_instructions": "Please search for the current weather conditions in Beijing, China. Include temperature, humidity, wind speed, and any weather warnings. Make sure to get the most up-to-date information available and format it in a user-friendly way.",
-      "additional_context": "This request is part of a larger financial research task where weather conditions might impact certain market sectors.",
-      "priority": "high",
-      "timeout": 30000
+      "detailed_instructions": "Please search for the current weather conditions in Beijing, China."
     }
   }
 }{
   "created_at": 1750052907,
+  "event": "AgentStarted",
+  "agent_id": "web-agent",
+  "agent_name": "Web Search Agent",
+  "run_id": "0b65893a-3567-4991-a22b-65bea5072895",
+  "session_id": "c80e88dd-48ab-4473-a6b9-836ee9adff5b",
+  "model": "gpt-4o",
+  "model_provider": "OpenAI",
+  "instructions": "You are a web search agent specialized in finding current information."
+}{
+  "created_at": 1750052908,
   "event": "ToolCallStarted",
   "agent_id": "web-agent",
   "run_id": "0b65893a-3567-4991-a22b-65bea5072895",
@@ -244,47 +360,31 @@ export default function AIAgentParser() {
     "tool_call_id": "call_6Rfb5KrkSf2Wr1UBxHAsmOgD",
     "tool_name": "duckduckgo_search",
     "tool_args": {
-      "query": "current weather in Beijing China temperature humidity wind conditions",
-      "max_results": 10,
-      "search_type": "web",
-      "region": "cn-zh",
-      "safe_search": "moderate",
-      "time_range": "recent"
-    }
-  }
-}{
-  "created_at": 1750052908,
-  "event": "ToolCallCompleted",
-  "agent_id": "web-agent",
-  "run_id": "0b65893a-3567-4991-a22b-65bea5072895",
-  "session_id": "c80e88dd-48ab-4473-a6b9-836ee9adff5b",
-  "content": "duckduckgo_search(query=current weather in Beijing) completed in 0.6865s.",
-  "tool": {
-    "tool_call_id": "call_6Rfb5KrkSf2Wr1UBxHAsmOgD",
-    "tool_name": "duckduckgo_search",
-    "tool_args": {
-      "query": "current weather in Beijing China temperature humidity wind conditions",
-      "max_results": 10,
-      "search_type": "web",
-      "region": "cn-zh",
-      "safe_search": "moderate",
-      "time_range": "recent"
-    },
-    "tool_call_error": false,
-    "result": "Weather search results for Beijing showing current temperature of 24°C, partly cloudy conditions, humidity at 65%, wind speed 12 km/h from southwest direction, and forecast data for the next 3 days...",
-    "metrics": {
-      "time": 0.6865077069960535
+      "query": "current weather in Beijing China",
+      "max_results": 5
     }
   }
 }{
   "created_at": 1750052909,
-  "event": "TeamRunResponseContent",
-  "team_id": "financial-researcher-team",
-  "run_id": "5580ae11-687f-48a7-b1ca-3232640781e9",
-  "session_id": "4e79ac06-df04-4215-a3ed-60393d72e531",
-  "content": "Here is the current weather information for Beijing based on the search results.",
-  "content_type": "str",
-  "thinking": ""
+  "event": "ToolCallCompleted",
+  "agent_id": "web-agent",
+  "run_id": "0b65893a-3567-4991-a22b-65bea5072895",
+  "session_id": "c80e88dd-48ab-4473-a6b9-836ee9adff5b",
+  "content": "Search completed successfully",
+  "tool": {
+    "tool_call_id": "call_6Rfb5KrkSf2Wr1UBxHAsmOgD",
+    "tool_name": "duckduckgo_search",
+    "tool_args": {
+      "query": "current weather in Beijing China",
+      "max_results": 5
+    },
+    "tool_call_error": false,
+    "result": "Current weather in Beijing: 24°C, partly cloudy, humidity 65%, wind 12 km/h SW",
+    "metrics": {
+      "time": 0.6865077069960535,
+      "tokens_used": 150
+    }
+  }
 }{
   "created_at": 1750052910,
   "event": "RunResponseContent",
@@ -293,7 +393,20 @@ export default function AIAgentParser() {
   "session_id": "c80e88dd-48ab-4473-a6b9-836ee9adff5b",
   "content": "The current weather in Beijing shows partly cloudy conditions with a temperature of 24°C.",
   "content_type": "str",
-  "thinking": ""
+  "thinking": "Based on the search results, I can provide accurate weather information."
+}{
+  "created_at": 1750052911,
+  "event": "AgentCompleted",
+  "agent_id": "web-agent",
+  "run_id": "0b65893a-3567-4991-a22b-65bea5072895",
+  "session_id": "c80e88dd-48ab-4473-a6b9-836ee9adff5b",
+  "status": "completed",
+  "result": "Successfully retrieved weather information for Beijing",
+  "metrics": {
+    "total_time": 2.1,
+    "tokens_used": 245,
+    "tools_called": 1
+  }
 }`
     setInputText(sampleData)
   }
@@ -308,10 +421,10 @@ export default function AIAgentParser() {
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              AI Agent Event Parser
+              Agno Event Parser
             </h1>
           </div>
-          <p className="text-sm text-slate-600">Transform AI agent logs into interactive visualizations</p>
+          <p className="text-sm text-slate-600">Advanced AI agent event analysis and visualization</p>
         </div>
 
         {/* Compact Input Section */}
@@ -329,7 +442,7 @@ export default function AIAgentParser() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Textarea
-              placeholder="Paste your concatenated JSON objects here..."
+              placeholder="Paste your Agno event JSON objects here..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="min-h-[120px] font-mono text-xs border-2 border-slate-200 focus:border-blue-400 transition-all duration-200 bg-slate-50/50 resize-none"
@@ -524,19 +637,61 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
 
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
-      case "TeamRunStarted":
+      // Run Events
       case "RunStarted":
+      case "TeamRunStarted":
         return <PlayCircle className="w-4 h-4 text-emerald-600" />
-      case "TeamToolCallStarted":
+      case "RunCompleted":
+      case "TeamRunCompleted":
+        return <CheckCircle className="w-4 h-4 text-green-600" />
+      case "RunFailed":
+      case "TeamRunFailed":
+        return <XCircle className="w-4 h-4 text-red-600" />
+      case "RunPaused":
+      case "TeamRunPaused":
+        return <Pause className="w-4 h-4 text-yellow-600" />
+      case "RunStopped":
+      case "TeamRunStopped":
+        return <Square className="w-4 h-4 text-gray-600" />
+
+      // Tool Events
       case "ToolCallStarted":
+      case "TeamToolCallStarted":
         return <Wrench className="w-4 h-4 text-blue-600" />
       case "ToolCallCompleted":
+      case "TeamToolCallCompleted":
         return <CheckCircle className="w-4 h-4 text-green-600" />
-      case "TeamRunResponseContent":
+      case "ToolCallFailed":
+      case "TeamToolCallFailed":
+        return <XCircle className="w-4 h-4 text-red-600" />
+
+      // Response Events
       case "RunResponseContent":
+      case "TeamRunResponseContent":
         return <MessageSquare className="w-4 h-4 text-purple-600" />
+      case "RunResponseDelta":
+      case "TeamRunResponseDelta":
+        return <ArrowRight className="w-4 h-4 text-purple-400" />
+
+      // Reasoning Events
+      case "ReasoningStep":
       case "TeamReasoningStep":
-        return <Activity className="w-4 h-4 text-indigo-600" />
+        return <Brain className="w-4 h-4 text-indigo-600" />
+
+      // Team Events
+      case "TeamMemberAdded":
+        return <Users className="w-4 h-4 text-cyan-600" />
+      case "TeamMemberRemoved":
+        return <Users className="w-4 h-4 text-orange-600" />
+
+      // Agent Events
+      case "AgentStarted":
+        return <Bot className="w-4 h-4 text-teal-600" />
+      case "AgentCompleted":
+        return <CheckCircle className="w-4 h-4 text-teal-600" />
+      case "AgentFailed":
+        return <XCircle className="w-4 h-4 text-red-600" />
+
       default:
         return <AlertCircle className="w-4 h-4 text-amber-600" />
     }
@@ -544,21 +699,297 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
 
   const getEventColor = (eventType: string) => {
     switch (eventType) {
-      case "TeamRunStarted":
+      // Run Events
       case "RunStarted":
+      case "TeamRunStarted":
         return "border-l-emerald-400 bg-emerald-50/50"
-      case "TeamToolCallStarted":
+      case "RunCompleted":
+      case "TeamRunCompleted":
+        return "border-l-green-400 bg-green-50/50"
+      case "RunFailed":
+      case "TeamRunFailed":
+        return "border-l-red-400 bg-red-50/50"
+      case "RunPaused":
+      case "TeamRunPaused":
+        return "border-l-yellow-400 bg-yellow-50/50"
+      case "RunStopped":
+      case "TeamRunStopped":
+        return "border-l-gray-400 bg-gray-50/50"
+
+      // Tool Events
       case "ToolCallStarted":
+      case "TeamToolCallStarted":
         return "border-l-blue-400 bg-blue-50/50"
       case "ToolCallCompleted":
+      case "TeamToolCallCompleted":
         return "border-l-green-400 bg-green-50/50"
-      case "TeamRunResponseContent":
+      case "ToolCallFailed":
+      case "TeamToolCallFailed":
+        return "border-l-red-400 bg-red-50/50"
+
+      // Response Events
       case "RunResponseContent":
+      case "TeamRunResponseContent":
         return "border-l-purple-400 bg-purple-50/50"
+      case "RunResponseDelta":
+      case "TeamRunResponseDelta":
+        return "border-l-purple-300 bg-purple-25/50"
+
+      // Reasoning Events
+      case "ReasoningStep":
       case "TeamReasoningStep":
         return "border-l-indigo-400 bg-indigo-50/50"
+
+      // Team Events
+      case "TeamMemberAdded":
+        return "border-l-cyan-400 bg-cyan-50/50"
+      case "TeamMemberRemoved":
+        return "border-l-orange-400 bg-orange-50/50"
+
+      // Agent Events
+      case "AgentStarted":
+      case "AgentCompleted":
+        return "border-l-teal-400 bg-teal-50/50"
+      case "AgentFailed":
+        return "border-l-red-400 bg-red-50/50"
+
       default:
         return "border-l-amber-400 bg-amber-50/50"
+    }
+  }
+
+  const renderEventSpecificContent = (eventData: any) => {
+    const eventType = eventData.event
+
+    switch (eventType) {
+      case "TeamRunStarted":
+      case "RunStarted":
+        return (
+          <div className="space-y-2">
+            {eventData.team_name && (
+              <div className="flex items-center gap-2">
+                <Users className="w-3 h-3 text-cyan-600" />
+                <span className="text-xs font-medium">Team:</span>
+                <span className="text-xs">{eventData.team_name}</span>
+              </div>
+            )}
+            {eventData.agent_name && (
+              <div className="flex items-center gap-2">
+                <Bot className="w-3 h-3 text-teal-600" />
+                <span className="text-xs font-medium">Agent:</span>
+                <span className="text-xs">{eventData.agent_name}</span>
+              </div>
+            )}
+            {eventData.model && (
+              <div className="flex items-center gap-2">
+                <Brain className="w-3 h-3 text-purple-600" />
+                <span className="text-xs font-medium">Model:</span>
+                <span className="text-xs">
+                  {eventData.model} ({eventData.model_provider})
+                </span>
+              </div>
+            )}
+            {eventData.instructions && (
+              <div className="p-2 bg-emerald-50 rounded border">
+                <div className="text-xs font-medium mb-1">Instructions:</div>
+                <div className="text-xs text-slate-700">{eventData.instructions}</div>
+              </div>
+            )}
+          </div>
+        )
+
+      case "TeamReasoningStep":
+      case "ReasoningStep":
+        return (
+          <div className="space-y-2">
+            {eventData.content && typeof eventData.content === "object" && (
+              <div className="space-y-2">
+                {eventData.content.title && (
+                  <div className="p-2 bg-indigo-50 rounded border">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Target className="w-3 h-3 text-indigo-600" />
+                      <span className="text-xs font-medium">Title:</span>
+                    </div>
+                    <div className="text-xs text-slate-700">{eventData.content.title}</div>
+                  </div>
+                )}
+                {eventData.content.action && (
+                  <div className="p-2 bg-blue-50 rounded border">
+                    <div className="flex items-center gap-1 mb-1">
+                      <ArrowRight className="w-3 h-3 text-blue-600" />
+                      <span className="text-xs font-medium">Action:</span>
+                    </div>
+                    <div className="text-xs text-slate-700">{eventData.content.action}</div>
+                  </div>
+                )}
+                {eventData.content.reasoning && (
+                  <div className="p-2 bg-green-50 rounded border">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Lightbulb className="w-3 h-3 text-green-600" />
+                      <span className="text-xs font-medium">Reasoning:</span>
+                    </div>
+                    <ScrollArea className="max-h-24 w-full">
+                      <div className="text-xs text-slate-700 whitespace-pre-wrap">{eventData.content.reasoning}</div>
+                    </ScrollArea>
+                  </div>
+                )}
+                {eventData.content.next_action && (
+                  <div className="p-2 bg-amber-50 rounded border">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Clock className="w-3 h-3 text-amber-600" />
+                      <span className="text-xs font-medium">Next Action:</span>
+                    </div>
+                    <div className="text-xs text-slate-700">{eventData.content.next_action}</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )
+
+      case "ToolCallStarted":
+      case "TeamToolCallStarted":
+        return (
+          <div className="space-y-2">
+            {eventData.tool && (
+              <div className="p-2 bg-blue-50 rounded border">
+                <div className="flex items-center gap-1 mb-2">
+                  <Wrench className="w-3 h-3 text-blue-600" />
+                  <span className="text-xs font-medium">Tool:</span>
+                  <Badge className="bg-blue-600 text-white text-xs h-4">{eventData.tool.tool_name}</Badge>
+                </div>
+                {eventData.tool.tool_args && (
+                  <div>
+                    <div className="text-xs font-medium mb-1">Arguments:</div>
+                    <ScrollArea className="max-h-20 w-full">
+                      <pre className="text-xs whitespace-pre-wrap break-all">
+                        {JSON.stringify(eventData.tool.tool_args, null, 2)}
+                      </pre>
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )
+
+      case "ToolCallCompleted":
+      case "TeamToolCallCompleted":
+        return (
+          <div className="space-y-2">
+            {eventData.tool && (
+              <div className="p-2 bg-green-50 rounded border">
+                <div className="flex items-center gap-1 mb-2">
+                  <CheckCircle className="w-3 h-3 text-green-600" />
+                  <span className="text-xs font-medium">Tool:</span>
+                  <Badge className="bg-green-600 text-white text-xs h-4">{eventData.tool.tool_name}</Badge>
+                  {eventData.tool.metrics?.time && (
+                    <Badge variant="outline" className="text-xs h-4">
+                      {eventData.tool.metrics.time.toFixed(3)}s
+                    </Badge>
+                  )}
+                </div>
+                {eventData.tool.result && (
+                  <div>
+                    <div className="text-xs font-medium mb-1">Result:</div>
+                    <ScrollArea className="max-h-20 w-full">
+                      <div className="text-xs text-slate-700 whitespace-pre-wrap break-all">
+                        {typeof eventData.tool.result === "string"
+                          ? eventData.tool.result
+                          : JSON.stringify(eventData.tool.result, null, 2)}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                )}
+                {eventData.tool.metrics && (
+                  <div className="mt-2 flex gap-2">
+                    {eventData.tool.metrics.tokens_used && (
+                      <Badge variant="outline" className="text-xs h-4">
+                        {eventData.tool.metrics.tokens_used} tokens
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )
+
+      case "AgentCompleted":
+        return (
+          <div className="space-y-2">
+            {eventData.status && (
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span className="text-xs font-medium">Status:</span>
+                <Badge className="bg-green-600 text-white text-xs h-4">{eventData.status}</Badge>
+              </div>
+            )}
+            {eventData.result && (
+              <div className="p-2 bg-green-50 rounded border">
+                <div className="text-xs font-medium mb-1">Result:</div>
+                <div className="text-xs text-slate-700">{eventData.result}</div>
+              </div>
+            )}
+            {eventData.metrics && (
+              <div className="p-2 bg-slate-50 rounded border">
+                <div className="text-xs font-medium mb-1">Metrics:</div>
+                <div className="flex gap-2 flex-wrap">
+                  {eventData.metrics.total_time && (
+                    <Badge variant="outline" className="text-xs h-4">
+                      {eventData.metrics.total_time}s total
+                    </Badge>
+                  )}
+                  {eventData.metrics.tokens_used && (
+                    <Badge variant="outline" className="text-xs h-4">
+                      {eventData.metrics.tokens_used} tokens
+                    </Badge>
+                  )}
+                  {eventData.metrics.tools_called && (
+                    <Badge variant="outline" className="text-xs h-4">
+                      {eventData.metrics.tools_called} tools
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+
+      case "RunResponseContent":
+      case "TeamRunResponseContent":
+        return (
+          <div className="space-y-2">
+            {eventData.content && (
+              <div className="p-2 bg-purple-50 rounded border">
+                <div className="flex items-center gap-1 mb-1">
+                  <MessageSquare className="w-3 h-3 text-purple-600" />
+                  <span className="text-xs font-medium">Response:</span>
+                  {eventData.content_type && (
+                    <Badge variant="outline" className="text-xs h-4">
+                      {eventData.content_type}
+                    </Badge>
+                  )}
+                </div>
+                <ScrollArea className="max-h-24 w-full">
+                  <div className="text-xs text-slate-700 whitespace-pre-wrap">{eventData.content}</div>
+                </ScrollArea>
+              </div>
+            )}
+            {eventData.thinking && (
+              <div className="p-2 bg-amber-50 rounded border">
+                <div className="flex items-center gap-1 mb-1">
+                  <Brain className="w-3 h-3 text-amber-600" />
+                  <span className="text-xs font-medium">Thinking:</span>
+                </div>
+                <div className="text-xs text-slate-700">{eventData.thinking}</div>
+              </div>
+            )}
+          </div>
+        )
+
+      default:
+        return null
     }
   }
 
@@ -567,7 +998,7 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
 
     return (
       <div className="space-y-3 text-xs">
-        {/* Compact Basic Info */}
+        {/* Basic Info Grid */}
         <div className="grid grid-cols-4 gap-2">
           <div className="p-2 rounded bg-white/60 border">
             <div className="text-xs text-slate-500 mb-1">Time</div>
@@ -575,150 +1006,41 @@ function EventCard({ event, index }: { event: AgentEvent; index: number }) {
           </div>
           {otherData.team_id && (
             <div className="p-2 rounded bg-white/60 border">
-              <div className="text-xs text-slate-500 mb-1">Team</div>
-              <div className="font-mono text-xs truncate">{otherData.team_id.split("-")[0]}</div>
+              <div className="text-xs text-slate-500 mb-1">Team ID</div>
+              <div className="font-mono text-xs truncate">{otherData.team_id.split("-")[0]}...</div>
             </div>
           )}
           {otherData.agent_id && (
             <div className="p-2 rounded bg-white/60 border">
-              <div className="text-xs text-slate-500 mb-1">Agent</div>
-              <div className="font-mono text-xs truncate flex items-center gap-1">
-                <Bot className="w-3 h-3" />
-                {otherData.agent_id}
-              </div>
+              <div className="text-xs text-slate-500 mb-1">Agent ID</div>
+              <div className="font-mono text-xs truncate">{otherData.agent_id}</div>
             </div>
           )}
-          {otherData.model && (
+          {otherData.run_id && (
             <div className="p-2 rounded bg-white/60 border">
-              <div className="text-xs text-slate-500 mb-1">Model</div>
-              <div className="font-mono text-xs">{otherData.model}</div>
+              <div className="text-xs text-slate-500 mb-1">Run ID</div>
+              <div className="font-mono text-xs truncate">{otherData.run_id.split("-")[0]}...</div>
             </div>
           )}
         </div>
 
-        {/* Content - Enhanced for Different Content Types */}
-        {otherData.content !== undefined && (
-          <div>
-            <div className="flex items-center gap-1 mb-1">
-              <MessageSquare className="w-3 h-3 text-purple-600" />
-              <span className="text-xs font-medium">Content</span>
-              {otherData.content_type && (
-                <Badge variant="outline" className="text-xs h-4">
-                  {otherData.content_type}
-                </Badge>
-              )}
-            </div>
-            <div className="p-2 bg-purple-50 rounded border text-xs">
-              <ScrollArea className="max-h-32 w-full">
-                {otherData.content_type === "ReasoningStep" ? (
-                  <div className="space-y-2">
-                    {typeof otherData.content === "object" && otherData.content !== null ? (
-                      <div className="space-y-2">
-                        {otherData.content.title && (
-                          <div>
-                            <div className="font-medium text-purple-700 mb-1">Title:</div>
-                            <div className="text-slate-700">{otherData.content.title}</div>
-                          </div>
-                        )}
-                        {otherData.content.action && (
-                          <div>
-                            <div className="font-medium text-blue-700 mb-1">Action:</div>
-                            <div className="text-slate-700">{otherData.content.action}</div>
-                          </div>
-                        )}
-                        {otherData.content.reasoning && (
-                          <div>
-                            <div className="font-medium text-green-700 mb-1">Reasoning:</div>
-                            <div className="text-slate-700 whitespace-pre-wrap">{otherData.content.reasoning}</div>
-                          </div>
-                        )}
-                        {otherData.content.next_action && (
-                          <div>
-                            <div className="font-medium text-amber-700 mb-1">Next Action:</div>
-                            <div className="text-slate-700">{otherData.content.next_action}</div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-slate-700 whitespace-pre-wrap">{String(otherData.content)}</div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-slate-700 whitespace-pre-wrap">
-                    {typeof otherData.content === "object"
-                      ? JSON.stringify(otherData.content, null, 2)
-                      : otherData.content || <span className="text-slate-500 italic">Empty</span>}
-                  </div>
-                )}
-              </ScrollArea>
-            </div>
-          </div>
-        )}
+        {/* Event-Specific Content */}
+        {renderEventSpecificContent(event.data)}
 
-        {/* Reasoning Content - New Section for ReasoningStep */}
+        {/* Reasoning Content for ReasoningStep events */}
         {otherData.reasoning_content && (
-          <div>
+          <div className="p-2 bg-indigo-50 rounded border">
             <div className="flex items-center gap-1 mb-1">
-              <MessageSquare className="w-3 h-3 text-indigo-600" />
-              <span className="text-xs font-medium">Reasoning Content</span>
+              <Info className="w-3 h-3 text-indigo-600" />
+              <span className="text-xs font-medium">Detailed Reasoning:</span>
             </div>
-            <div className="p-2 bg-indigo-50 rounded border text-xs">
-              <ScrollArea className="max-h-32 w-full">
-                <div className="text-slate-700 whitespace-pre-wrap">{otherData.reasoning_content}</div>
-              </ScrollArea>
-            </div>
+            <ScrollArea className="max-h-32 w-full">
+              <div className="text-xs text-slate-700 whitespace-pre-wrap">{otherData.reasoning_content}</div>
+            </ScrollArea>
           </div>
         )}
 
-        {/* Tool Details */}
-        {otherData.tool && (
-          <div>
-            <div className="flex items-center gap-1 mb-1">
-              <Wrench className="w-3 h-3 text-blue-600" />
-              <span className="text-xs font-medium">Tool</span>
-              <Badge className="bg-blue-600 text-white text-xs h-4">{otherData.tool.tool_name}</Badge>
-              {otherData.tool.metrics?.time && (
-                <Badge variant="outline" className="text-xs h-4">
-                  {otherData.tool.metrics.time.toFixed(3)}s
-                </Badge>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              {otherData.tool.tool_args && (
-                <div className="p-2 bg-blue-50 rounded border">
-                  <div className="text-xs font-medium mb-1 flex items-center gap-1">
-                    Args
-                    <Maximize2 className="w-3 h-3 text-slate-400" />
-                  </div>
-                  <ScrollArea className="max-h-24 w-full">
-                    <pre className="text-xs whitespace-pre-wrap break-all">
-                      {JSON.stringify(otherData.tool.tool_args, null, 2)}
-                    </pre>
-                  </ScrollArea>
-                </div>
-              )}
-
-              {otherData.tool.result && (
-                <div className="p-2 bg-green-50 rounded border">
-                  <div className="text-xs font-medium mb-1 flex items-center gap-1">
-                    Result
-                    <Maximize2 className="w-3 h-3 text-slate-400" />
-                  </div>
-                  <ScrollArea className="max-h-24 w-full">
-                    <div className="text-xs whitespace-pre-wrap break-all">
-                      {typeof otherData.tool.result === "string"
-                        ? otherData.tool.result
-                        : JSON.stringify(otherData.tool.result, null, 2)}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Raw JSON - Enhanced Display with Fixed Scrolling */}
+        {/* Raw JSON */}
         <Collapsible>
           <CollapsibleTrigger className="flex items-center gap-1 text-xs text-slate-600 hover:text-slate-800 p-2 rounded hover:bg-slate-100 w-full justify-between border border-slate-200">
             <div className="flex items-center gap-1">
