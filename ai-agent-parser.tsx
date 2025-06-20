@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -53,7 +53,80 @@ export default function AIAgentParser() {
   const [parseError, setParseError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedEventTypes, setSelectedEventTypes] = useState<Set<string>>(new Set())
+  const [isAutoLoaded, setIsAutoLoaded] = useState(false)
   const { toast } = useToast()
+
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const inputParam = urlParams.get("input")
+
+    if (inputParam && !isAutoLoaded) {
+      try {
+        // Decode the URL parameter
+        const decodedInput = decodeURIComponent(inputParam)
+        setInputText(decodedInput)
+        setIsAutoLoaded(true)
+
+        // Auto-parse if input is provided
+        setTimeout(() => {
+          handleAutoParseFromURL(decodedInput)
+        }, 500)
+
+        toast({
+          title: "🔗 Auto-loaded from URL",
+          description: "Input data loaded from URL parameter",
+        })
+      } catch (error) {
+        console.error("Error decoding URL parameter:", error)
+        toast({
+          title: "⚠️ URL Parameter Error",
+          description: "Failed to decode input parameter from URL",
+        })
+      }
+    }
+  }, [isAutoLoaded])
+
+  // Auto-parse function for URL input
+  const handleAutoParseFromURL = async (inputData: string) => {
+    if (!inputData.trim()) return
+
+    setIsLoading(true)
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    try {
+      setParseError(null)
+      const parsedObjects = parseJSONObjects(inputData)
+
+      if (parsedObjects.length === 0) {
+        setParseError("No valid JSON objects found in the URL input")
+        setIsLoading(false)
+        return
+      }
+
+      const newEvents = parsedObjects.map((obj, index) => ({
+        id: index,
+        created_at: obj.created_at || Date.now() / 1000,
+        event: obj.event || "Unknown",
+        data: obj,
+      }))
+
+      setEvents(newEvents)
+      setSelectedEventTypes(new Set()) // Reset filters
+      toast({
+        title: "✨ Auto-parse Successful!",
+        description: `Successfully parsed ${newEvents.length} events from URL`,
+      })
+    } catch (error) {
+      setParseError(`Auto-parse error: ${error instanceof Error ? error.message : "Unknown error"}`)
+      toast({
+        title: "❌ Auto-parse Failed",
+        description: "Failed to parse JSON from URL parameter",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Get unique event types
   const eventTypes = useMemo(() => {
@@ -283,6 +356,12 @@ export default function AIAgentParser() {
     setEvents([])
     setParseError(null)
     setSelectedEventTypes(new Set())
+    setIsAutoLoaded(false)
+
+    // Clear URL parameter
+    const url = new URL(window.location.href)
+    url.searchParams.delete("input")
+    window.history.replaceState({}, "", url.toString())
   }
 
   const handleEventTypeToggle = (eventType: string, checked: boolean) => {
@@ -411,6 +490,32 @@ export default function AIAgentParser() {
     setInputText(sampleData)
   }
 
+  const generateShareLink = () => {
+    if (!inputText.trim()) {
+      toast({
+        title: "⚠️ No Content",
+        description: "Please enter some content first",
+      })
+      return
+    }
+
+    try {
+      const url = new URL(window.location.href)
+      url.searchParams.set("input", encodeURIComponent(inputText))
+
+      navigator.clipboard.writeText(url.toString())
+      toast({
+        title: "🔗 Share Link Copied!",
+        description: "Share link with input data copied to clipboard",
+      })
+    } catch (error) {
+      toast({
+        title: "❌ Copy Failed",
+        description: "Failed to copy share link to clipboard",
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="max-w-7xl mx-auto p-4 space-y-4">
@@ -438,6 +543,7 @@ export default function AIAgentParser() {
                   {inputText.length} chars
                 </Badge>
               )}
+              {isAutoLoaded && <Badge className="bg-green-600 text-white text-xs">Auto-loaded</Badge>}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -470,6 +576,10 @@ export default function AIAgentParser() {
               <Button onClick={loadSampleData} variant="outline" size="sm">
                 <Copy className="w-4 h-4 mr-1" />
                 Sample
+              </Button>
+              <Button onClick={generateShareLink} variant="outline" size="sm" disabled={!inputText.trim()}>
+                <FileText className="w-4 h-4 mr-1" />
+                Share
               </Button>
               <Button onClick={handleClear} variant="outline" size="sm">
                 <Trash2 className="w-4 h-4 mr-1" />
